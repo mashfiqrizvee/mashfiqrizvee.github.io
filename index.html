@@ -9,6 +9,56 @@
   <title>Md Mashfiq Rizvee</title>
   <link rel="stylesheet" href="stylesheet.css">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <style>
+    .publication img { cursor: zoom-in; }
+    .publication img:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+    .publication-lightbox {
+      width: min(94vw, 1500px);
+      max-width: none;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      overflow: visible;
+    }
+    .publication-lightbox::backdrop { background: rgba(18, 24, 21, .88); }
+    .publication-lightbox-inner {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 100%;
+      max-height: 92vh;
+      padding: 44px 16px 16px;
+    }
+    .publication-lightbox-image {
+      display: block;
+      width: auto;
+      max-width: 100%;
+      height: auto;
+      max-height: 82vh;
+      object-fit: contain;
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, .35);
+    }
+    .publication-lightbox-close {
+      position: absolute;
+      top: 0;
+      right: 8px;
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(255,255,255,.45);
+      border-radius: 999px;
+      background: rgba(20, 27, 23, .78);
+      color: #fff;
+      font: 700 24px/1 'DM Sans', sans-serif;
+      cursor: pointer;
+    }
+    .publication-lightbox-close:hover,
+    .publication-lightbox-close:focus-visible { background: #176b55; outline: none; }
+    body.lightbox-open { overflow: hidden; }
+  </style>
 </head>
 <body>
   <header class="site-header">
@@ -286,6 +336,13 @@
     </section>
   </main>
 
+  <dialog id="publication-lightbox" class="publication-lightbox" aria-label="Expanded publication image">
+    <div class="publication-lightbox-inner">
+      <button class="publication-lightbox-close" type="button" aria-label="Close expanded image">×</button>
+      <img class="publication-lightbox-image" src="" alt="">
+    </div>
+  </dialog>
+
   <footer>
     <p>© <span id="year"></span> Md Mashfiq Rizvee</p>
     <p>Academic portfolio · GitHub Pages</p>
@@ -299,6 +356,49 @@
       const probe = new Image();
       probe.onload = () => { img.src = candidate; };
       probe.src = candidate;
+    });
+
+    const lightbox = document.getElementById('publication-lightbox');
+    const lightboxImage = lightbox.querySelector('.publication-lightbox-image');
+    const lightboxClose = lightbox.querySelector('.publication-lightbox-close');
+    let lastPublicationImage = null;
+
+    function openPublicationImage(img) {
+      lastPublicationImage = img;
+      lightboxImage.src = img.src;
+      lightboxImage.alt = img.alt.replace(/ placeholder$/i, '');
+      document.body.classList.add('lightbox-open');
+      lightbox.showModal();
+      lightboxClose.focus();
+    }
+
+    function closePublicationImage() {
+      if (!lightbox.open) return;
+      lightbox.close();
+      document.body.classList.remove('lightbox-open');
+      lightboxImage.removeAttribute('src');
+      if (lastPublicationImage) lastPublicationImage.focus();
+    }
+
+    document.querySelectorAll('.publication > img').forEach((img) => {
+      img.tabIndex = 0;
+      img.setAttribute('role', 'button');
+      img.setAttribute('aria-label', `Enlarge image for ${img.closest('.publication').querySelector('h3').textContent}`);
+      img.addEventListener('click', () => openPublicationImage(img));
+      img.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          openPublicationImage(img);
+        }
+      });
+    });
+
+    lightboxClose.addEventListener('click', closePublicationImage);
+    lightbox.addEventListener('click', (event) => {
+      if (event.target === lightbox) closePublicationImage();
+    });
+    lightbox.addEventListener('close', () => {
+      document.body.classList.remove('lightbox-open');
     });
 
     document.getElementById('year').textContent = new Date().getFullYear();
