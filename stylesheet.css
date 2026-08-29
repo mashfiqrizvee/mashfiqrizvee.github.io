@@ -4,8 +4,8 @@
   --ink:#18201d;
   --muted:#65706b;
   --paper:#f8f7f3;
-  --card:#ffffff;
-  --line:#dcded8;
+  --card:#f2f0ea;
+  --line:#d8d4ca;
   --accent:#176b55;
   --accent-soft:#e5f0eb;
   --max:960px;
@@ -171,7 +171,7 @@ h3 { color:var(--ink); }
   height:180px;
   object-fit:cover;
   border-radius:11px;
-  background:#eef0ed;
+  background:#ebe8df;
 }
 .publication h3, .compact-list h3 {
   margin:0 0 10px;
